@@ -1,3 +1,4 @@
 .idea/
 .tweetrc
 venv/
+__pycache__/
