@@ -5,12 +5,8 @@
 
 from __future__ import print_function
 
-try:
-    import configparser
-except ImportError as _:
-    import ConfigParser as configparser
+import configparser
 
-import getopt
 import os
 import sys
 import twitter
@@ -44,25 +40,9 @@ USAGE = '''Usage: tweet [options] message
 '''
 
 
-def PrintUsageAndExit():
+def print_usage_and_exit():
     print(USAGE)
     sys.exit(2)
-
-
-def GetConsumerKeyEnv():
-    return os.environ.get("TWEETUSERNAME", None)
-
-
-def GetConsumerSecretEnv():
-    return os.environ.get("TWEETPASSWORD", None)
-
-
-def GetAccessKeyEnv():
-    return os.environ.get("TWEETACCESSKEY", None)
-
-
-def GetAccessSecretEnv():
-    return os.environ.get("TWEETACCESSSECRET", None)
 
 
 class TweetRc(object):
@@ -90,57 +70,31 @@ class TweetRc(object):
     def _GetConfig(self):
         if not self._config:
             self._config = configparser.ConfigParser()
-            self._config.read(os.path.expanduser('~/.tweetrc'))
+            path = os.path.dirname(os.path.abspath(__file__)) + "/.tweetrc"
+            self._config.read(path)
         return self._config
 
 
 def main():
+    config = TweetRc()
+
+    api = twitter.Api(consumer_key=config.GetConsumerKey(), consumer_secret=config.GetConsumerSecret(),
+                      access_token_key=config.GetAccessKey(), access_token_secret=config.GetAccessSecret(),
+                      input_encoding="utf-8")
     try:
-        shortflags = 'h'
-        longflags = ['help', 'consumer-key=', 'consumer-secret=',
-                     'access-key=', 'access-secret=', 'encoding=']
-        opts, args = getopt.gnu_getopt(sys.argv[1:], shortflags, longflags)
-    except getopt.GetoptError:
-        PrintUsageAndExit()
-    consumer_keyflag = None
-    consumer_secretflag = None
-    access_keyflag = None
-    access_secretflag = None
-    encoding = None
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            PrintUsageAndExit()
-        if o in ("--consumer-key"):
-            consumer_keyflag = a
-        if o in ("--consumer-secret"):
-            consumer_secretflag = a
-        if o in ("--access-key"):
-            access_keyflag = a
-        if o in ("--access-secret"):
-            access_secretflag = a
-        if o in ("--encoding"):
-            encoding = a
-    message = ' '.join(args)
-    if not message:
-        PrintUsageAndExit()
-    rc = TweetRc()
-    consumer_key = consumer_keyflag or GetConsumerKeyEnv() or rc.GetConsumerKey()
-    consumer_secret = consumer_secretflag or GetConsumerSecretEnv() or rc.GetConsumerSecret()
-    access_key = access_keyflag or GetAccessKeyEnv() or rc.GetAccessKey()
-    access_secret = access_secretflag or GetAccessSecretEnv() or rc.GetAccessSecret()
-    if not consumer_key or not consumer_secret or not access_key or not access_secret:
-        PrintUsageAndExit()
-    api = twitter.Api(consumer_key=consumer_key, consumer_secret=consumer_secret,
-                      access_token_key=access_key, access_token_secret=access_secret,
-                      input_encoding=encoding)
-    try:
-        status = api.PostUpdate(message)
+        # status = api.PostUpdate("@RockstarGames Hey. It's Paige Harris. We worked together on that job, remember? With you know who... I basically ran the thing while he took credit. I've got a new sideline you might be interested in.. high end scores, taken elegantly, using the latest tech. ")
+        # status2 = api.PostUpdate("There's a Terrorbyte truck on Warstock that I can turn into our Nerve Center. Get one, we'll store it under the club, and get moving on this immedidately.", in_reply_to_status_id=1031438789577564160)
+        status3 = api.PostUpdate("@RockstarGames Hey. Paige Harris here. You and me should do this. It makes sense. Buy the Terrorbyte truck on Warstock, we turn it into a Nerve Center, and start taking scores. I've got some great ideas, I just need someone to execute them.")
     except UnicodeDecodeError:
         print("Your message could not be encoded.  Perhaps it contains non-ASCII characters? ")
         print("Try explicitly specifying the encoding with the --encoding flag")
         sys.exit(2)
 
-    print("{0} just posted: {1}".format(status.user.name, status.text))
+    # print("{0} just posted: {1}".format(status.user.name, status.text))
+    # print("{0} just posted: {1}".format(status2.user.name, status2.text))
+    print("{0} just posted: {1}".format(status3.user.name, status3.text))
+
 
 if __name__ == "__main__":
     main()
+
