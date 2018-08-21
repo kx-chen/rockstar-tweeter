@@ -1,11 +1,7 @@
-from flask import Flask, request
-from main import tweet
-from flask_sqlalchemy import SQLAlchemy
+from tweet import tweet
+from app import create_app
 
-app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-db = SQLAlchemy(app)
+app = create_app()
 
 
 @app.route("/")

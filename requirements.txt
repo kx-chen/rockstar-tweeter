@@ -2,3 +2,4 @@ python-twitter
 flask
 gunicorn
 flask_sqlalchemy
+flask_oauthlib
